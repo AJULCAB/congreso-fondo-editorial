@@ -1,6 +1,6 @@
 <?php
 if (!defined('_S_VERSION')) {
-    define('_S_VERSION', '2.10.49');
+    define('_S_VERSION', '1.0.0');
 }
 
 if (!defined('RECAPTCHA_KEY_PUB')) {

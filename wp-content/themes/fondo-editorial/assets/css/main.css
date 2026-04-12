@@ -25175,8 +25175,16 @@ input[type=number] {
   height: 100%;
 }
 .promo-wrapper.promo-type-yt .promo-image {
-  position: relative;
   height: 100%;
+}
+.promo-wrapper.promo-type-yt .promo-image img {
+  height: 100%;
+  object-fit: cover;
+}
+@media (max-width: 700px) {
+  .promo-wrapper.promo-type-yt .promo-image {
+    position: relative;
+  }
 }
 .promo-wrapper.promo-type-yt .promo-text {
   text-align: left;

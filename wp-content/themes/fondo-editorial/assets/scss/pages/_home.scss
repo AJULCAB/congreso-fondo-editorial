@@ -549,8 +549,14 @@
     &.promo-type-yt {
         height: 100%;
         .promo-image {
-            position: relative;
             height: 100%;
+            img{
+                height: 100%;
+                object-fit: cover;
+            }
+            @media (max-width: 700px) {
+                position: relative;
+            }
         }
         .promo-text {
             text-align: left;
