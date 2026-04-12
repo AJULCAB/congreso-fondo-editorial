@@ -335,25 +335,27 @@ add_filter('edit_posts_per_page', function($per_page, $post_type) {
  * Campo de imagen genérico para taxonomías
  * Agregar el slug de cada taxonomía al array para activarlo.
  * ============================================================ */
-function _taxonomy_image_js( $field_id = 'term-imagen' ) { ?>
+function _taxonomy_image_js( $field_id = 'term-imagen' ) {
+	$js_field_var = preg_replace( '/[^A-Za-z0-9_]/', '_', (string) $field_id );
+	?>
 	<script>
 	(function($){
-		var frame_<?php echo esc_js($field_id); ?>;
+		var frame_<?php echo esc_js( $js_field_var ); ?>;
 		$(document).on('click', '#<?php echo esc_js($field_id); ?>-btn', function(e){
 			e.preventDefault();
-			if (frame_<?php echo esc_js($field_id); ?>) { frame_<?php echo esc_js($field_id); ?>.open(); return; }
-			frame_<?php echo esc_js($field_id); ?> = wp.media({
+			if (frame_<?php echo esc_js( $js_field_var ); ?>) { frame_<?php echo esc_js( $js_field_var ); ?>.open(); return; }
+			frame_<?php echo esc_js( $js_field_var ); ?> = wp.media({
 				title: '<?php esc_html_e('Seleccionar imagen', 'vyv'); ?>',
 				button: { text: '<?php esc_html_e('Usar esta imagen', 'vyv'); ?>' },
 				multiple: false
 			});
-			frame_<?php echo esc_js($field_id); ?>.on('select', function(){
-				var att = frame_<?php echo esc_js($field_id); ?>.state().get('selection').first().toJSON();
+			frame_<?php echo esc_js( $js_field_var ); ?>.on('select', function(){
+				var att = frame_<?php echo esc_js( $js_field_var ); ?>.state().get('selection').first().toJSON();
 				$('#<?php echo esc_js($field_id); ?>').val(att.id);
 				$('#<?php echo esc_js($field_id); ?>-preview').html('<img src="'+att.url+'" style="max-width:200px;height:auto;">');
 				$('#<?php echo esc_js($field_id); ?>-remove').show();
 			});
-			frame_<?php echo esc_js($field_id); ?>.open();
+			frame_<?php echo esc_js( $js_field_var ); ?>.open();
 		});
 		$(document).on('click', '#<?php echo esc_js($field_id); ?>-remove', function(){
 			$('#<?php echo esc_js($field_id); ?>').val('');
