@@ -43,6 +43,9 @@
                 height: 300px;
                 object-fit: cover;
                 background-color: #9E9E9E;
+                @media (max-width: 767px) {
+                    object-fit: contain;
+                }
             }
         }
     }

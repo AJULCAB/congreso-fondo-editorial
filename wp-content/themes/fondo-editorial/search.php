@@ -76,10 +76,10 @@ $get_result_date = static function( $post_id ) {
 				</div>
 
 				<?php if ( have_posts() ) : ?>
-					<div class="blog-list-cards">
+					<div class="blog-list-cards w-100">
 						<?php while ( have_posts() ) : the_post(); ?>
 							<article <?php post_class( 'blog-card card-style-list search-result-card' ); ?>>
-								<div class="row w-100">
+								<div class="row ">
 									<div class="col-md-3">
 										<a href="<?php the_permalink(); ?>" class="image d-block">
 											<?php if ( has_post_thumbnail() ) : ?>
@@ -136,34 +136,8 @@ $get_result_date = static function( $post_id ) {
 				<?php endif; ?>
 			</div>
 
-            <div class="col-lg-3">
-				<aside class="inner-page-sidebar">
-					<div class="single-block">
-						<!-- <h2 class="sidebar-title mb--30">Buscar de nuevo</h2> -->
-						<form class="site-mini-search" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
-							<input type="search" name="s" placeholder="Buscar" value="<?php echo esc_attr( $search_term ); ?>">
-							<button type="submit"><i class="fas fa-search"></i></button>
-						</form>
-					</div>
-
-					<?php if ($expreso_page_sidebar) : ?>
-                        <?php dynamic_sidebar($expreso_page_sidebar); ?>
-                    <?php else : ?>
-                        <div class="single-block">
-                        <h2 class="sidebar-title mb--30">Páginas</h2>
-                        <ul class="sidebar-list mb--30">
-                            <?php
-                            wp_list_pages(
-                                array(
-                                    'title_li' => '',
-                                    'depth'    => 1,
-                                )
-                            );
-                            ?>
-                        </ul>
-                        </div>
-                    <?php endif; ?>
-				</aside>
+			<div class="col-lg-3">
+				<?php get_template_part( 'template-parts/sidebar/sidebar', 'content', array( 'sidebar_id' => $expreso_page_sidebar ) ); ?>
 			</div>
 		</div>
 	</div>

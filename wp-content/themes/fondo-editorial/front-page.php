@@ -80,7 +80,7 @@ Promotion Section Two
                 <div class="promo-wrapper promo-type-yt">
                     <a href="https://www.youtube.com/@fecdelperu" target="_blank" class="promo-image  promo-overlay bg-image"
                         data-bg="<?php echo esc_url(assets('image/temp/youtube.jpg')); ?>">
-                        <!-- <img src="image/bg-images/promo-banner-mid.jpg" alt=""> -->
+                        <img src="<?php echo esc_url(assets('image/temp/youtube.jpg')); ?>" alt="">
                     </a>
                     <div class="promo-text">
                         <!-- <div class="promo-text-inner">
@@ -121,7 +121,7 @@ Promotion Section Two
         <div class="promo-wrapper promo-type-four">
             <a href="https://www3.congreso.gob.pe/Docs/FondoEditorial/Interface/files/requisitos_2026.pdf" target="_blank" class="promo-image promo-overlay bg-image"
                 data-bg="<?php echo esc_url(assets('image/temp/proyectos.jpg')); ?>">
-                <!-- <img src="<?php echo esc_url(assets('image/temp/proyectos.jpg')); ?>" alt="" class="w-100 h-100"> -->
+                <img src="<?php echo esc_url(assets('image/temp/proyectos.jpg')); ?>" alt="" class="w-100 h-100">
             </a>
             <div class="promo-text w-100 justify-content-center justify-content-md-left">
                 <div class="row w-100">

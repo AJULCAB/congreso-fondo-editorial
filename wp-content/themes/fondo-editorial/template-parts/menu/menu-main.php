@@ -2,6 +2,8 @@
 $_menu_categories = wp_get_menu_array('menu_categories');
 $_menu_desktop    = wp_get_menu_array('menu_desktop');
 $_menu_mobile     = wp_get_menu_array('menu_mobile');
+$_footer_data     = expreso_get_site_contact_data();
+$_footer_social   = ! empty($_footer_data['social_links']) ? $_footer_data['social_links'] : array();
 ?>
 <div class="site-header header-2 mb--20 d-none d-lg-block">
     <div class="header-middle pt--10 pb--10">
@@ -130,9 +132,9 @@ $_menu_mobile     = wp_get_menu_array('menu_mobile');
                 <div class="col-md-3 col-5  order-md-3 text-right">
                     <div class="mobile-header-btns header-top-widget">
                         <ul class="header-links">
-                            <li class="sin-link">
+                            <!-- <li class="sin-link">
                                 <a href="cart.html" class="cart-link link-icon"><i class="ion-bag"></i></a>
-                            </li>
+                            </li> -->
                             <li class="sin-link">
                                 <a href="javascript:" class="link-icon hamburgur-icon off-canvas-btn"><i
                                         class="ion-navicon"></i></a>
@@ -168,7 +170,7 @@ $_menu_mobile     = wp_get_menu_array('menu_mobile');
                 <!-- mobile menu navigation end -->
             </div>
             <!-- mobile menu end -->
-            <nav class="off-canvas-nav">
+            <!-- <nav class="off-canvas-nav">
                 <ul class="mobile-menu menu-block-2">
                     <li class="menu-item-has-children">
                         <a href="#">Moneda - USD $ <i class="fas fa-angle-down"></i></a>
@@ -194,19 +196,16 @@ $_menu_mobile     = wp_get_menu_array('menu_mobile');
                         </ul>
                     </li>
                 </ul>
-            </nav>
+            </nav> -->
             <div class="off-canvas-bottom">
                 <div class="contact-list mb--10">
-                    <a href="" class="sin-contact"><i class="fas fa-mobile-alt"></i>(12345) 78790220</a>
-                    <a href="" class="sin-contact"><i class="fas fa-envelope"></i>ejemplo@tienda.com</a>
+                    <a href="<?php echo esc_url($_footer_data['phone']['url']); ?>" class="sin-contact"><i class="fas fa-mobile-alt"></i><?php echo esc_html($_footer_data['phone']['label']); ?></a>
+                    <a href="mailto:<?php echo antispambot( esc_attr($_footer_data['email_editorial']) ); ?>" class="sin-contact"><i class="fas fa-envelope"></i><?php echo esc_html( antispambot($_footer_data['email_editorial']) ); ?></a>
                 </div>
                 <div class="off-canvas-social">
-                    <a href="#" class="single-icon"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="single-icon"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="single-icon"><i class="fas fa-rss"></i></a>
-                    <a href="#" class="single-icon"><i class="fab fa-youtube"></i></a>
-                    <a href="#" class="single-icon"><i class="fab fa-google-plus-g"></i></a>
-                    <a href="#" class="single-icon"><i class="fab fa-instagram"></i></a>
+                    <?php foreach ($_footer_social as $social_item) : ?>
+                        <a href="<?php echo esc_url($social_item['url']); ?>" class="single-icon" target="_blank" rel="noopener noreferrer" aria-label="<?php echo esc_attr($social_item['label']); ?>"><i class="<?php echo esc_attr($social_item['icon_class']); ?>"></i></a>
+                    <?php endforeach; ?>
                 </div>
             </div>
         </div>

@@ -209,3 +209,69 @@
         }
     }
 }
+
+.video-archive-page {
+    .video-card-grid {
+        .video-card-media {
+            position: relative;
+            overflow: hidden;
+            border-radius: 3px;
+            background: #111;
+
+            &::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(180deg, rgba(0, 0, 0, .08) 0%, rgba(0, 0, 0, .42) 100%);
+                transition: opacity .25s ease;
+            }
+
+            img {
+                width: 100%;
+                aspect-ratio: 16 / 9;
+                object-fit: cover;
+                object-position: center;
+                transition: transform .35s ease;
+            }
+
+            &:hover {
+                img {
+                    transform: scale(1.03);
+                }
+
+                &::after {
+                    opacity: .85;
+                }
+
+                .video-card-play {
+                    transform: translate(-50%, -50%) scale(1.08);
+                }
+            }
+        }
+
+        .video-card-play {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            z-index: 2;
+            width: 72px;
+            height: 72px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(205, 26, 27, .92);
+            color: #fff;
+            font-size: 24px;
+            box-shadow: 0 16px 30px rgba(0, 0, 0, .22);
+            transform: translate(-50%, -50%);
+            transition: transform .25s ease, background .25s ease;
+            pointer-events: none;
+
+            i {
+                margin: 0;
+                line-height: 1;
+            }
+        }
+    }
+}

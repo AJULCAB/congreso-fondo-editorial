@@ -96,32 +96,7 @@ $current_page  = max( 1, get_query_var( 'paged' ) );
 				<?php endif; ?>
 			</div>
 			<div class="col-lg-3">
-				<div class="inner-page-sidebar">
-					<div class="single-block">
-						<form class="site-mini-search" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
-							<input type="search" name="s" placeholder="Buscar" value="<?php echo esc_attr( get_search_query() ); ?>">
-							<button type="submit"><i class="fas fa-search"></i></button>
-						</form>
-					</div>
-
-					<?php if ( $expreso_page_sidebar ) : ?>
-						<?php dynamic_sidebar( $expreso_page_sidebar ); ?>
-					<?php else : ?>
-						<div class="single-block">
-							<h2 class="sidebar-title mb--30">Páginas</h2>
-							<ul class="sidebar-list mb--30">
-								<?php
-								wp_list_pages(
-									array(
-										'title_li' => '',
-										'depth'    => 1,
-									)
-								);
-								?>
-							</ul>
-						</div>
-					<?php endif; ?>
-				</div>
+				<?php get_template_part( 'template-parts/sidebar/sidebar', 'content', array( 'sidebar_id' => $expreso_page_sidebar ) ); ?>
 			</div>
 		</div>
 	</div>

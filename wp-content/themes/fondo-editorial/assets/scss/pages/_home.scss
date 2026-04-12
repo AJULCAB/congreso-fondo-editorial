@@ -275,6 +275,10 @@
         height: 100%;
         left: 0;
         top: 0;
+        @media  (max-width: 767px) {
+            position: relative;
+        }
+
     }
     .promo-text {
         position: absolute;
@@ -455,6 +459,9 @@
     }
     &.promo-type-four {
         height: 240px;
+        @media  (max-width: 767px) {
+            height: auto;
+        }
         .promo-text {
             text-align: center;
             margin-left: 0;

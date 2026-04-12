@@ -96,6 +96,55 @@ function ajax_response($status)
     die();
 }
 
+function expreso_get_site_contact_data()
+{
+    return array(
+        'organization'      => 'Fondo Editorial del Congreso del Perú',
+        'address'           => "Edificio Fernando Belaunde Terry\nJirón Huallaga 330, Cercado de Lima",
+        'phone'             => array(
+            'label' => '(01) 311-7846',
+            'url'   => 'tel:+5113117846',
+        ),
+        'phone_secondary'   => array(
+            'label' => '(01) 3117777 anexo 6163',
+            'url'   => 'tel:+5113117777',
+        ),
+        'whatsapp'          => array(
+            'label' => '924-987288',
+            'url'   => 'https://wa.me/51924987288',
+        ),
+        'email_editorial'   => 'fondoeditorial@congreso.gob.pe',
+        'email_sales'       => 'fondoeditorialventas@congreso.gob.pe',
+        'email_press'       => 'prensafec@congreso.gob.pe',
+        'social_links'      => array(
+            array(
+                'label'      => 'Facebook',
+                'url'        => 'https://www.facebook.com/fecdelperu',
+                'icon_class' => 'ion ion-social-facebook',
+                'item_class' => 'facebook',
+            ),
+            array(
+                'label'      => 'X',
+                'url'        => 'https://twitter.com/fecdelperu',
+                'icon_class' => 'ion ion-social-twitter',
+                'item_class' => 'twitter',
+            ),
+            array(
+                'label'      => 'Instagram',
+                'url'        => 'https://www.instagram.com/fecdelperu/',
+                'icon_class' => 'fab fa-instagram',
+                'item_class' => 'instagram',
+            ),
+            array(
+                'label'      => 'YouTube',
+                'url'        => 'https://www.youtube.com/channel/UCQ9ONB5Y1p6VoXZynLRWlsA/featured',
+                'icon_class' => 'ion ion-social-youtube',
+                'item_class' => 'youtube',
+            ),
+        ),
+    );
+}
+
 function api_curl($name = 'nada', $data = array(), $token='')
 {
     set_time_limit(0);
@@ -138,6 +187,130 @@ function get_id_vimeo($url)
     }
 
     return $id;
+}
+
+function expreso_extract_iframe_src($value)
+{
+    if (!is_string($value) || '' === trim($value)) {
+        return '';
+    }
+
+    if (preg_match('/<iframe[^>]+src=["\']([^"\']+)["\']/i', $value, $matches)) {
+        return trim($matches[1]);
+    }
+
+    return '';
+}
+
+function expreso_normalize_video_value($value)
+{
+    if (!is_string($value) || '' === trim($value)) {
+        return '';
+    }
+
+    $value = trim($value);
+
+    if (false !== stripos($value, '<iframe')) {
+        $iframe_src = expreso_extract_iframe_src($value);
+        if ($iframe_src) {
+            return $iframe_src;
+        }
+    }
+
+    return $value;
+}
+
+function expreso_get_video_url($post_id)
+{
+    $keys = array(
+        'video_url',
+        'url_video',
+        'url_de_video',
+        'enlace_video',
+        'video',
+        'youtube_url',
+        'vimeo_url',
+    );
+
+    foreach ($keys as $key) {
+        $value = '';
+
+        if (function_exists('get_field')) {
+            $value = get_field($key, $post_id);
+        }
+
+        if (empty($value)) {
+            $value = get_post_meta($post_id, $key, true);
+        }
+
+        $value = expreso_normalize_video_value($value);
+
+        if ($value) {
+            return $value;
+        }
+    }
+
+    return '';
+}
+
+function expreso_get_video_poster($post_id, $size = 'medium_large')
+{
+    if (has_post_thumbnail($post_id)) {
+        $image = get_the_post_thumbnail_url($post_id, $size);
+        if ($image) {
+            return $image;
+        }
+    }
+
+    $video_url = expreso_get_video_url($post_id);
+    if ($video_url) {
+        $youtube_id = function_exists('get_id_youtube') ? get_id_youtube($video_url) : '';
+        if ($youtube_id) {
+            return 'https://img.youtube.com/vi/' . rawurlencode($youtube_id) . '/hqdefault.jpg';
+        }
+
+        $vimeo_id = function_exists('get_id_vimeo') ? get_id_vimeo($video_url) : '';
+        if ($vimeo_id) {
+            return 'https://vumbnail.com/' . rawurlencode($vimeo_id) . '.jpg';
+        }
+    }
+
+    return assets('image/default-placeholder.jpg');
+}
+
+function expreso_get_video_thumbnail($post_id, $size = 'medium_large')
+{
+    return expreso_get_video_poster($post_id, $size);
+}
+
+function expreso_get_video_embed_url($post_id)
+{
+    $video_url = expreso_get_video_url($post_id);
+
+    if (!$video_url) {
+        return '';
+    }
+
+    if (strpos($video_url, 'youtube.com/embed/') !== false || strpos($video_url, 'player.vimeo.com/video/') !== false || strpos($video_url, 'facebook.com/plugins/video.php') !== false) {
+        return $video_url;
+    }
+
+    $youtube_id = function_exists('get_id_youtube') ? get_id_youtube($video_url) : '';
+    if ($youtube_id) {
+        return 'https://www.youtube.com/embed/' . rawurlencode($youtube_id);
+    }
+
+    $vimeo_id = function_exists('get_id_vimeo') ? get_id_vimeo($video_url) : '';
+    if ($vimeo_id) {
+        return 'https://player.vimeo.com/video/' . rawurlencode($vimeo_id);
+    }
+
+    $facebook_id = function_exists('get_id_faceboo_video') ? get_id_faceboo_video($video_url) : '';
+    if ($facebook_id) {
+        return 'https://www.facebook.com/plugins/video.php?href=' . rawurlencode($video_url);
+    }
+
+    return $video_url;
 }
 
 

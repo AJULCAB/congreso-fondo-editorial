@@ -104,23 +104,30 @@
         transition: all 0.5s ease-in-out;
         margin-right: 7px;
         margin-top: 10px;
+        border-radius: 50%;
         &.instagram { 
             background: #e4405f;
+            background: $primary-color;
         }
         &.facebook {
             background: #2b5893;
+            background: $primary-color;
         }
         &.twitter {
             background: #1ea8d4;
+            background: $primary-color;
         }
         &.google {
             background: #f96c4b;
+            background: $primary-color;
         }
         &.youtube {
             background: #de0f0f;
+            background: $primary-color;
         }
         &.tiktok {
             background: #000;
+            background: $primary-color;
         }
         &:hover {
             background-color: #000;
