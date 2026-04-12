@@ -94,6 +94,12 @@ function labs_scripts()
     // HOME  
     wp_register_style('home', assets('css/home.min.css'), 'null', _S_VERSION, 'all');
 
+    if ( function_exists('is_woocommerce') && ( is_woocommerce() || is_shop() || is_product_category() ) ) {
+        if ( expreso_asset_exists('js/shop.js') ) {
+            wp_enqueue_script('shop', assets('js/shop.js'), array('jquery', 'main'), expreso_asset_version('js/shop.js'), array('in_footer' => true));
+        }
+    }
+
     if (is_front_page() || is_home()) {
         wp_enqueue_style('home');
 

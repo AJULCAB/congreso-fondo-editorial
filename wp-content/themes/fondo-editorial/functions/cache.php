@@ -38,11 +38,11 @@ function borrar_cache_w3_total_cache() {
         });
     } else {
         // Agregar un mensaje de error
-        add_action('admin_notices', function() {
-            echo '<div class="notice notice-error is-dismissible">
-                <p>W3 Total Cache: No se pudo eliminar la caché, Asegúrate de que el plugin esté activo.</p>
-            </div>';
-        });
+        // add_action('admin_notices', function() {
+        //     echo '<div class="notice notice-error is-dismissible">
+        //         <p>W3 Total Cache: No se pudo eliminar la caché, Asegúrate de que el plugin esté activo.</p>
+        //     </div>';
+        // });
     }
 }
 
@@ -68,10 +68,10 @@ function exp_purge_transients_cache() {
                 echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($message) . '</p></div>';
             });
         } else {
-            $message = sprintf(__('Se encontraron %d transients, pero no se eliminaron ninguno.', 'text-domain'), $transients_count);
-            add_action('admin_notices', function() use ($message) {
-                echo '<div class="notice notice-info is-dismissible"><p>' . esc_html($message) . '</p></div>';
-            });
+            // $message = sprintf(__('Se encontraron %d transients, pero no se eliminaron ninguno.', 'text-domain'), $transients_count);
+            // add_action('admin_notices', function() use ($message) {
+            //     echo '<div class="notice notice-info is-dismissible"><p>' . esc_html($message) . '</p></div>';
+            // });
         }
     } else {
         $message = __('Error al eliminar los transients de la caché.', 'text-domain');

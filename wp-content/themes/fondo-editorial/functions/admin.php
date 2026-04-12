@@ -58,7 +58,8 @@ if ( ! function_exists( 'expreso_admin_setup' ) ) :
 			array(
 				'menu_desktop' => __('Menú Desktop'),
 				'menu_mobile' => __('Menú Mobile'),
-				'menu_desktop_open' => __('Modal Menú Desktop'),
+				'menu_categories' => __('Menú Categorías'),
+				'menu_footer' => __('Menú Footer'),
 	            // 'footer'     => __('Footer menu'),
 	            // 'menu_mobile'     => __('Menú mobile'),
 			)
@@ -86,10 +87,106 @@ if ( ! function_exists( 'expreso_admin_setup' ) ) :
 		// Add theme support for selective refresh for widgets.
 		add_theme_support( 'customize-selective-refresh-widgets' );
 
+		// Add WooCommerce support
+		add_theme_support( 'woocommerce' );
 		
 	}
 endif;
 add_action( 'after_setup_theme', 'expreso_admin_setup' );
+
+// Respetar el parámetro ?per_page= en el catálogo de WooCommerce
+add_filter( 'loop_shop_per_page', function ( $cols ) {
+	if ( isset( $_GET['per_page'] ) && intval( $_GET['per_page'] ) > 0 ) {
+		return intval( $_GET['per_page'] );
+	}
+	return $cols;
+}, 20 );
+
+add_filter( 'request', function ( $query_vars ) {
+	if ( is_admin() || empty( $query_vars['autor'] ) ) {
+		return $query_vars;
+	}
+
+	$is_product_archive_request = ! empty( $query_vars['product_cat'] )
+		|| ! empty( $query_vars['product_tag'] )
+		|| ( isset( $query_vars['post_type'] ) && 'product' === $query_vars['post_type'] )
+		|| ( isset( $query_vars['wc_query'] ) && 'product_query' === $query_vars['wc_query'] );
+
+	if ( $is_product_archive_request ) {
+		$query_vars['autor_filtro'] = $query_vars['autor'];
+		unset( $query_vars['autor'] );
+	}
+
+	return $query_vars;
+}, 20 );
+
+add_action( 'pre_get_posts', function ( $query ) {
+	if ( is_admin() || ! $query->is_main_query() ) {
+		return;
+	}
+
+	if ( ! function_exists( 'is_shop' ) || ! ( is_shop() || is_product_taxonomy() || $query->is_post_type_archive( 'product' ) ) ) {
+		return;
+	}
+
+	$author_slug = '';
+
+	if ( isset( $_GET['autor_filtro'] ) ) {
+		$author_slug = sanitize_title( wp_unslash( $_GET['autor_filtro'] ) );
+	} elseif ( isset( $_GET['autor'] ) ) {
+		$author_slug = sanitize_title( wp_unslash( $_GET['autor'] ) );
+	}
+
+	$format_slug = isset( $_GET['formato'] ) ? sanitize_title( wp_unslash( $_GET['formato'] ) ) : '';
+
+	if ( '' === $author_slug && '' === $format_slug ) {
+		return;
+	}
+
+	$tax_query = $query->get( 'tax_query' );
+	$tax_query = is_array( $tax_query ) ? $tax_query : array();
+	$author_taxonomy = taxonomy_exists( 'pa_autor' ) ? 'pa_autor' : ( taxonomy_exists( 'autor' ) ? 'autor' : '' );
+
+	if ( isset( $_GET['autor'] ) ) {
+		$query->set( 'autor', '' );
+	}
+
+	if ( ! empty( $tax_query ) ) {
+		$tax_query = array_values(
+			array_filter(
+				$tax_query,
+				function ( $tax_filter ) use ( $author_taxonomy ) {
+					if ( ! is_array( $tax_filter ) || empty( $tax_filter['taxonomy'] ) ) {
+						return true;
+					}
+
+					return 'autor' !== $tax_filter['taxonomy'] || 'autor' === $author_taxonomy;
+				}
+			)
+		);
+	}
+
+	if ( $author_slug && $author_taxonomy ) {
+		$tax_query[] = array(
+			'taxonomy' => $author_taxonomy,
+			'field'    => 'slug',
+			'terms'    => array( $author_slug ),
+		);
+	}
+
+	if ( $format_slug && taxonomy_exists( 'pa_formato' ) ) {
+		$tax_query[] = array(
+			'taxonomy' => 'pa_formato',
+			'field'    => 'slug',
+			'terms'    => array( $format_slug ),
+		);
+	}
+
+	if ( ! empty( $tax_query ) ) {
+		$tax_query['relation'] = 'AND';
+		$query->set( 'tax_query', $tax_query );
+	}
+}, 20 );
 
 
 
@@ -231,3 +328,118 @@ add_filter('edit_posts_per_page', function($per_page, $post_type) {
     return $per_page;
 }, 10, 2);
 
+
+
+
+/* ============================================================
+ * Campo de imagen genérico para taxonomías
+ * Agregar el slug de cada taxonomía al array para activarlo.
+ * ============================================================ */
+function _taxonomy_image_js( $field_id = 'term-imagen' ) { ?>
+	<script>
+	(function($){
+		var frame_<?php echo esc_js($field_id); ?>;
+		$(document).on('click', '#<?php echo esc_js($field_id); ?>-btn', function(e){
+			e.preventDefault();
+			if (frame_<?php echo esc_js($field_id); ?>) { frame_<?php echo esc_js($field_id); ?>.open(); return; }
+			frame_<?php echo esc_js($field_id); ?> = wp.media({
+				title: '<?php esc_html_e('Seleccionar imagen', 'vyv'); ?>',
+				button: { text: '<?php esc_html_e('Usar esta imagen', 'vyv'); ?>' },
+				multiple: false
+			});
+			frame_<?php echo esc_js($field_id); ?>.on('select', function(){
+				var att = frame_<?php echo esc_js($field_id); ?>.state().get('selection').first().toJSON();
+				$('#<?php echo esc_js($field_id); ?>').val(att.id);
+				$('#<?php echo esc_js($field_id); ?>-preview').html('<img src="'+att.url+'" style="max-width:200px;height:auto;">');
+				$('#<?php echo esc_js($field_id); ?>-remove').show();
+			});
+			frame_<?php echo esc_js($field_id); ?>.open();
+		});
+		$(document).on('click', '#<?php echo esc_js($field_id); ?>-remove', function(){
+			$('#<?php echo esc_js($field_id); ?>').val('');
+			$('#<?php echo esc_js($field_id); ?>-preview').html('');
+			$(this).hide();
+		});
+	})(jQuery);
+	</script>
+<?php }
+
+function taxonomy_add_image_field_cb() {
+	wp_enqueue_media(); ?>
+	<div class="form-field term-imagen-wrap">
+		<label for="term-imagen"><?php esc_html_e('Imagen', 'vyv'); ?></label>
+		<input type="hidden" id="term-imagen" name="term_imagen" value="">
+		<div id="term-imagen-preview" style="margin-bottom:8px;"></div>
+		<button type="button" class="button" id="term-imagen-btn"><?php esc_html_e('Seleccionar imagen', 'vyv'); ?></button>
+		<button type="button" class="button" id="term-imagen-remove" style="display:none;"><?php esc_html_e('Eliminar imagen', 'vyv'); ?></button>
+		<?php _taxonomy_image_js(); ?>
+	</div>
+<?php }
+
+function taxonomy_edit_image_field_cb( $term ) {
+	$imagen_id  = get_term_meta( $term->term_id, 'term_imagen', true );
+	$imagen_url = $imagen_id ? wp_get_attachment_image_url( $imagen_id, 'thumbnail' ) : '';
+	wp_enqueue_media(); ?>
+	<tr class="form-field term-imagen-wrap">
+		<th scope="row"><label for="term-imagen"><?php esc_html_e('Imagen', 'vyv'); ?></label></th>
+		<td>
+			<input type="hidden" id="term-imagen" name="term_imagen" value="<?php echo esc_attr( $imagen_id ); ?>">
+			<div id="term-imagen-preview" style="margin-bottom:8px;">
+				<?php if ( $imagen_url ) : ?>
+					<img src="<?php echo esc_url( $imagen_url ); ?>" style="max-width:200px;height:auto;">
+				<?php endif; ?>
+			</div>
+			<button type="button" class="button" id="term-imagen-btn"><?php esc_html_e('Seleccionar imagen', 'vyv'); ?></button>
+			<button type="button" class="button" id="term-imagen-remove"<?php echo $imagen_id ? '' : ' style="display:none;"'; ?>><?php esc_html_e('Eliminar imagen', 'vyv'); ?></button>
+			<?php _taxonomy_image_js(); ?>
+		</td>
+	</tr>
+<?php }
+
+function taxonomy_save_image_field_cb( $term_id ) {
+	if ( isset( $_POST['term_imagen'] ) ) {
+		$imagen_id = absint( $_POST['term_imagen'] );
+		if ( $imagen_id ) {
+			update_term_meta( $term_id, 'term_imagen', $imagen_id );
+		} else {
+			delete_term_meta( $term_id, 'term_imagen' );
+		}
+	}
+}
+
+function taxonomy_image_add_column_cb( $columns ) {
+	$columns['term_imagen'] = __( 'Imagen', 'vyv' );
+	return $columns;
+}
+
+function taxonomy_image_render_column_cb( $content, $column_name, $term_id ) {
+	if ( $column_name !== 'term_imagen' ) {
+		return $content;
+	}
+	$imagen_id = get_term_meta( $term_id, 'term_imagen', true );
+	if ( $imagen_id ) {
+		$url = wp_get_attachment_image_url( $imagen_id, array( 100, 100 ) );
+		if ( $url ) {
+			return '<img src="' . esc_url( $url ) . '" style="max-width:100px;height:auto;object-fit:contain;border-radius:3px;">';
+		}
+	}
+	return '—';
+}
+
+// Registrar hooks de imagen para cada taxonomía del tema
+add_action( 'admin_head', function() {
+	echo '<style>.column-term_imagen { width: 100px !important; max-width: 100px; }</style>';
+} );
+
+add_action( 'init', function() {
+	foreach ( array( 'categorias_video', 'autor','categorias_libro' ) as $tax_slug ) {
+		add_action( "{$tax_slug}_add_form_fields",  'taxonomy_add_image_field_cb' );
+		add_action( "{$tax_slug}_edit_form_fields", 'taxonomy_edit_image_field_cb' );
+		add_action( "created_{$tax_slug}",          'taxonomy_save_image_field_cb' );
+		add_action( "edited_{$tax_slug}",           'taxonomy_save_image_field_cb' );
+		add_filter( "manage_edit-{$tax_slug}_columns",       'taxonomy_image_add_column_cb' );
+		add_filter( "manage_{$tax_slug}_custom_column",      'taxonomy_image_render_column_cb', 10, 3 );
+	}
+} );
+
+// usar con term_image() para mostrar la imagen en el frontend

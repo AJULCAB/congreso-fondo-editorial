@@ -155,3 +155,102 @@ function f_columnista_search(){
         die();
     }
 }
+add_action('wp_ajax_filter_products_by_price', 'f_filter_products_by_price');
+add_action('wp_ajax_nopriv_filter_products_by_price', 'f_filter_products_by_price');
+
+function f_filter_products_by_price() {
+    $min_price = isset($_POST['min_price']) ? floatval($_POST['min_price']) : 0;
+    $max_price = isset($_POST['max_price']) ? floatval($_POST['max_price']) : 1000;
+    $term_id = isset($_POST['term_id']) ? intval($_POST['term_id']) : 0;
+    $author_slug = isset($_POST['autor_filtro'])
+        ? sanitize_title( wp_unslash( $_POST['autor_filtro'] ) )
+        : ( isset($_POST['autor']) ? sanitize_title( wp_unslash( $_POST['autor'] ) ) : '' );
+    $format_slug = isset($_POST['formato']) ? sanitize_title( wp_unslash( $_POST['formato'] ) ) : '';
+    $author_taxonomy = taxonomy_exists('pa_autor') ? 'pa_autor' : ( taxonomy_exists('autor') ? 'autor' : '' );
+
+    $args = array(
+        'post_type' => 'product',
+        'post_status' => 'publish',
+        'posts_per_page' => 9,
+        'paged' => 1,
+        'meta_query' => array(
+            array(
+                'key' => '_price',
+                'value' => array($min_price, $max_price),
+                'compare' => 'BETWEEN',
+                'type' => 'NUMERIC'
+            )
+        )
+    );
+
+    if ($term_id > 0) {
+        $args['tax_query'] = array(
+            array(
+                'taxonomy' => 'product_cat',
+                'field' => 'term_id',
+                'terms' => $term_id
+            )
+        );
+    }
+
+    if ( $author_slug && $author_taxonomy ) {
+        if ( empty( $args['tax_query'] ) ) {
+            $args['tax_query'] = array();
+        }
+
+        $args['tax_query'][] = array(
+            'taxonomy' => $author_taxonomy,
+            'field'    => 'slug',
+            'terms'    => array( $author_slug )
+        );
+    }
+
+    if ( $format_slug && taxonomy_exists('pa_formato') ) {
+        if ( empty( $args['tax_query'] ) ) {
+            $args['tax_query'] = array();
+        }
+
+        $args['tax_query'][] = array(
+            'taxonomy' => 'pa_formato',
+            'field'    => 'slug',
+            'terms'    => array( $format_slug )
+        );
+    }
+
+    if ( ! empty( $args['tax_query'] ) && count( $args['tax_query'] ) > 1 ) {
+        $args['tax_query']['relation'] = 'AND';
+    }
+
+    $query = new WP_Query($args);
+
+    ob_start();
+    if ($query->have_posts()) {
+        while ($query->have_posts()) {
+            $query->the_post();
+            global $product;
+            echo '<div class="col-lg-4 col-sm-6">';
+            get_template_part('components/card/card', 'product', array('id' => $product->get_id()));
+            echo '</div>';
+        }
+    } else {
+        echo '<p class="woocommerce-info">No se encontraron productos que concuerden con la selección.</p>';
+    }
+    $html = ob_get_clean();
+
+    ob_start();
+    $total_pages = $query->max_num_pages;
+    if ($total_pages > 1) {
+        $current_page = max(1, get_query_var('paged'));
+        echo paginate_links(array(
+            'base' => get_pagenum_link(1) . '%_%',
+            'format' => 'page/%#%',
+            'current' => $current_page,
+            'total' => $total_pages,
+            'prev_text' => '&larr;',
+            'next_text' => '&rarr;'
+        ));
+    }
+    $pagination = ob_get_clean();
+
+    wp_send_json_success(array('html' => $html, 'pagination' => $pagination));
+}

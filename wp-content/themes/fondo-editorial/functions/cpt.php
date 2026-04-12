@@ -4,28 +4,40 @@
  *  https://developer.wordpress.org/resource/dashicons/#cover-image
  * 
 */
-// opinion
-if (!function_exists('custom_post_type_opinion')) {
-    // Register opinion
-    function custom_post_type_opinion()
+// notas_prensa
+if (!function_exists('custom_post_type_notas_prensa')) {
+    // Register notas_prensa
+    function custom_post_type_notas_prensa()
     {
-        $name= 'Opinion';
-        register_post_type('opinion', cpt_generate($name,array('post_tag'),'dashicons-editor-quote','es'));
+        $name= 'Notas de Prensa';
+        register_post_type('notas_prensa', cpt_generate($name,array('post_tag'),'dashicons-editor-quote',''));
     }
-    add_action('init', 'custom_post_type_opinion', 4);
+    add_action('init', 'custom_post_type_notas_prensa', 4);
 
 }
 
 
 
-// blog
-if (!function_exists('custom_post_type_blog')) {
-    // Register blog
-    function custom_post_type_blog()
+// video
+if (!function_exists('custom_post_type_video')) {
+    // Register video
+    function custom_post_type_video()
     {
-        $name= 'Blog';
-        register_post_type('blog', cpt_generate($name,array('post_tag'),'dashicons-admin-site','s'));
+        $name= 'Video';
+        register_post_type('video', cpt_generate($name,array('post_tag'),'dashicons-admin-site','s'));
     }
-    add_action('init', 'custom_post_type_blog', 5);
+    add_action('init', 'custom_post_type_video', 5);
 
 }
+
+// libro
+// if (!function_exists('custom_post_type_libro')) {
+//     // Register libro
+//     function custom_post_type_libro()
+//     {
+//         $name= 'Libro';
+//         register_post_type('libro', cpt_generate($name,array('post_tag'),'dashicons-admin-site','s'));
+//     }
+//     add_action('init', 'custom_post_type_libro', 5);
+
+// }

@@ -24,6 +24,16 @@
             line-height: 22px;
             .list-value {
                 color: $primary-color;
+
+                &.in-stock {
+                    color: #1f8f47;
+                    font-weight: 600;
+                }
+
+                &.out-of-stock {
+                    color: #c62828;
+                    font-weight: 600;
+                }
             }
         }
     }

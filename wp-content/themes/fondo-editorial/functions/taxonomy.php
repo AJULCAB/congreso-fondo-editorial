@@ -12,11 +12,20 @@
 
 
 // tags Register Custom Taxonomy 
-// function post_tag_taxonomy() {
-// 	$args =tax_generate('Etiqueta',true,'s');
-// 	register_taxonomy('post_tag',array('blog','opinion',),$args);
+function post_categorias_video_taxonomy() {
+	$args =tax_generate('Categorías de video',true,'');
+	register_taxonomy('categorias_video',array('video',),$args);
+}
+add_action( 'init', 'post_categorias_video_taxonomy', 0 );
+
+
+
+// // tags Register Custom Taxonomy 
+// function post_categorias_libro_taxonomy() {
+// 	$args =tax_generate('Categorías de libro',true,'');
+// 	register_taxonomy('categorias_libro',array('libro',),$args);
 // }
-// add_action( 'init', 'post_tag_taxonomy', 0 );
+// add_action( 'init', 'post_categorias_libro_taxonomy', 0 );
 
 
 
@@ -26,3 +35,4 @@ function cposts_autor_taxonomy() {
 	register_taxonomy('autor',array('post'),$args);
 }
 add_action( 'init', 'cposts_autor_taxonomy', 0 );
+

@@ -97,3 +97,115 @@
         }
     }
 }
+
+.search-results-page {
+    .search-results-heading {
+        padding-bottom: 20px;
+        border-bottom: 1px solid #ececec;
+    }
+
+    .search-result-card {
+        padding-bottom: 28px;
+        border-bottom: 1px solid #ececec;
+
+        .image {
+            display: block;
+            overflow: hidden;
+            border-radius: 3px;
+            background: #f6f6f6;
+            height: 100%;
+            min-height: 240px;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                object-position: center;
+                transition: transform .4s ease;
+            }
+
+            &:hover {
+                img {
+                    transform: scale(1.03);
+                }
+            }
+        }
+
+        .card-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .post-meta {
+            margin-bottom: 16px;
+        }
+
+        article {
+            p {
+                margin-bottom: 14px;
+            }
+        }
+    }
+
+    .search-results-pagination {
+        border: 0;
+        padding: 0;
+        justify-content: center;
+        background: transparent;
+        gap: 10px;
+
+        .page-numbers {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 46px;
+            height: 46px;
+            padding: 0 14px;
+            border: 1px solid #e3e3e3;
+            border-radius: 3px;
+            background: #fff;
+            color: #333;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all .25s ease;
+
+            &:hover,
+            &:focus {
+                border-color: #cd1a1b;
+                color: #cd1a1b;
+            }
+
+            &.current {
+                border-color: #cd1a1b;
+                background: #cd1a1b;
+                color: #fff;
+            }
+
+            &.dots {
+                border-color: transparent;
+                background: transparent;
+                min-width: auto;
+                padding: 0 2px;
+            }
+        }
+    }
+
+    @include mobile-lg {
+        .search-result-card {
+            .image {
+                min-height: 280px;
+            }
+        }
+    }
+
+    @include mobile {
+        .search-result-card {
+            .image {
+                min-height: 220px;
+                margin-bottom: 20px;
+            }
+        }
+    }
+}

@@ -1,0 +1,62 @@
+<?php
+/**
+ * Simple product add to cart
+ *
+ * @see https://woocommerce.com/document/template-structure/
+ * @package WooCommerce\Templates
+ * @version 10.2.0
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+global $product;
+
+if ( ! $product->is_purchasable() ) {
+	return;
+}
+
+echo wc_get_stock_html( $product );
+
+if ( $product->is_in_stock() ) : ?>
+
+	<?php do_action( 'woocommerce_before_add_to_cart_form' ); ?>
+
+	<form class="cart" action="<?php echo esc_url( apply_filters( 'woocommerce_add_to_cart_form_action', $product->get_permalink() ) ); ?>" method="post" enctype="multipart/form-data">
+		<?php do_action( 'woocommerce_before_add_to_cart_button' ); ?>
+
+		<div class="add-to-cart-row">
+			<?php if ( ! $product->is_sold_individually() ) : ?>
+				<div class="count-input-block">
+					<span class="widget-label">Cant.</span>
+					<?php
+					do_action( 'woocommerce_before_add_to_cart_quantity' );
+
+					woocommerce_quantity_input(
+						array(
+							'classes'     => array( 'input-text', 'qty', 'text', 'form-control', 'text-center' ),
+							'input_value' => isset( $_POST['quantity'] ) ? wc_stock_amount( wp_unslash( $_POST['quantity'] ) ) : $product->get_min_purchase_quantity(),
+							'max_value'   => $product->get_max_purchase_quantity(),
+							'min_value'   => $product->get_min_purchase_quantity(),
+						),
+						$product,
+						true
+					);
+
+					do_action( 'woocommerce_after_add_to_cart_quantity' );
+					?>
+				</div>
+			<?php endif; ?>
+
+			<div class="add-cart-btn">
+				<button type="submit" name="add-to-cart" value="<?php echo esc_attr( $product->get_id() ); ?>" class="single_add_to_cart_button btn btn-outlined--primary<?php echo esc_attr( wc_wp_theme_get_element_class_name( 'button' ) ? ' ' . wc_wp_theme_get_element_class_name( 'button' ) : '' ); ?>">
+					<span class="plus-icon">+</span><?php echo esc_html( $product->single_add_to_cart_text() ); ?>
+				</button>
+			</div>
+		</div>
+
+		<?php do_action( 'woocommerce_after_add_to_cart_button' ); ?>
+	</form>
+
+	<?php do_action( 'woocommerce_after_add_to_cart_form' ); ?>
+
+<?php endif; ?>

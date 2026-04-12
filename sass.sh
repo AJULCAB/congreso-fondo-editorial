@@ -1,0 +1,1 @@
+sass --watch wp-content/themes/fondo-editorial/assets/scss/main.scss  wp-content/themes/fondo-editorial/assets/css/main.css

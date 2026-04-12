@@ -144,78 +144,111 @@ function get_id_vimeo($url)
 
 function wp_get_menu_array($current_menu)
 {
+    $menuLocations = get_nav_menu_locations();
 
-    $menuLocations = get_nav_menu_locations(); // Get our nav locations (set in our theme, usually functions.php)
-    $menu_lists = array();
-
-    // This returns an array of menu locations ([LOCATION_NAME] = MENU_ID);
-    if (isset($menuLocations[$current_menu])) {
-        # code...
-        $menuID = $menuLocations[$current_menu]; // Get the *primary* menu ID
-
-        $menus = wp_get_nav_menu_items($menuID);
-
-        // echo json_encode($menus);exit;
-
-        if ($menus) {
-            # code...
-            foreach ($menus as $menu) {
-                if ($menu->menu_item_parent === "0") {
-                    $menu_lists[$menu->ID]['menu'] = (object) array(
-                        'id'    => $menu->object_id,
-                        'title' => $menu->title,
-                        'url'   => $menu->url,
-                        'type'  => $menu->type_label,
-                        'object'  => $menu->object,
-                        'active'  => eval_menu_active($menu),
-                        // 'url'   => get_category_link($menu->object_id),
-
-                    );
-                } else {
-                    $submenu_item = array();
-
-                    foreach ($menus as $submenu) {
-                        if ($submenu->menu_item_parent == $menu->menu_item_parent) {
-                            $submenu_item[] = (object) array(
-                                'id'    => $submenu->object_id,
-                                'title' => $submenu->title,
-                                'url'   => $submenu->url,
-                                'type'  => $menu->type_label,
-
-                                'object'  => $menu->object,
-                                'active'  => eval_menu_active($menu),
-
-                                // 'url'   => get_category_link($submenu->object_id),
-                            );
-                        }
-                    }
-
-                    $menu_lists[$menu->menu_item_parent]['submenu'] = $submenu_item;
-                }
-            }
-        }
-
+    if (!isset($menuLocations[$current_menu])) {
+        return array();
     }
 
-    // echo json_encode($menu_lists);
+    $menuID = $menuLocations[$current_menu];
+    $menus  = wp_get_nav_menu_items($menuID);
 
-    return $menu_lists;
+    if (!$menus) {
+        return array();
+    }
+
+    // Indexar todos los ítems por su nav item ID y registrar el mapa de padres
+    $items      = array();
+    $parent_map = array();
+    foreach ($menus as $item) {
+        $items[$item->ID] = array(
+            'menu' => (object) array(
+                'id'     => $item->object_id,
+                'nav_id' => $item->ID,
+                'title'  => $item->title,
+                'url'    => $item->url,
+                'type'   => $item->type_label,
+                'object' => $item->object,
+                'active' => eval_menu_active($item),
+            ),
+            'submenu' => array(),
+        );
+        $parent_map[$item->ID] = (int) $item->menu_item_parent;
+    }
+
+    // Propagar active hacia los niveles superiores (profundidad ilimitada)
+    foreach ($items as $nav_id => $item) {
+        if ($item['menu']->active) {
+            $pid = isset($parent_map[$nav_id]) ? $parent_map[$nav_id] : 0;
+            while ($pid && isset($items[$pid])) {
+                $items[$pid]['menu']->active = true;
+                $pid = isset($parent_map[$pid]) ? $parent_map[$pid] : 0;
+            }
+        }
+    }
+
+    // Construir el árbol asignando cada ítem al submenu de su padre
+    $tree = array();
+    foreach ($menus as $item) {
+        $parent_id = (int) $item->menu_item_parent;
+        if ($parent_id === 0) {
+            $tree[$item->ID] = &$items[$item->ID];
+        } elseif (isset($items[$parent_id])) {
+            $items[$parent_id]['submenu'][$item->ID] = &$items[$item->ID];
+        }
+    }
+
+    return $tree;
 }
 function eval_menu_active($menu)
 {
-    if ($menu->type == 'post_type_archive') {
-        # code...
-        if (is_post_type($menu->object)) {
-            # code...
-            return true;
-        }
-    } else {
-        if ($menu->object_id == get_queried_object_id()) {
-            # code...
-            return true;
-        }
+    $current_id = (int) get_queried_object_id();
+    $menu_id    = (int) $menu->object_id;
+
+    switch ($menu->type) {
+
+        case 'post_type_archive':
+            // Activo en el archivo del CPT y en entradas individuales de ese tipo
+            return is_post_type_archive($menu->object)
+                || is_singular($menu->object);
+
+        case 'post_type':
+            // Coincidencia directa con el ítem
+            if ($menu_id === $current_id) {
+                return true;
+            }
+            // Páginas: activo si estamos en una subpágina descendiente
+            if ($menu->object === 'page' && is_page()) {
+                return in_array($menu_id, get_ancestors($current_id, 'page', 'post_type'));
+            }
+            return false;
+
+        case 'taxonomy':
+            // Coincidencia directa con el término
+            if ($menu_id === $current_id) {
+                return true;
+            }
+            // Activo si el término actual es hijo del término del menú
+            if (is_tax() || is_category() || is_tag()) {
+                $queried  = get_queried_object();
+                $taxonomy = isset($queried->taxonomy) ? $queried->taxonomy : $menu->object;
+                return in_array($menu_id, get_ancestors($current_id, $taxonomy, 'taxonomy'));
+            }
+            return false;
+
+        case 'custom':
+            // Portada
+            if ((is_front_page() || is_home()) && untrailingslashit($menu->url) === untrailingslashit(home_url())) {
+                return true;
+            }
+            // Comparar con la URL actual de la petición
+            $request     = isset($GLOBALS['wp']->request) ? $GLOBALS['wp']->request : '';
+            $current_url = home_url($request);
+            return untrailingslashit($menu->url) === untrailingslashit($current_url);
+
+        default:
+            return $menu_id === $current_id;
     }
-    return false;
 }
 
 function build_url($string)
@@ -393,11 +426,11 @@ function thumbnail($id, $type = 'full',$default=true)
     // the_post_thumbnail( 'shop_catalog' );   // Shop catalog (300 x 300 hard cropped)
     // the_post_thumbnail( 'shop_single' );    // Shop single (600 x 600 hard cropped)
     if (!has_post_thumbnail($id)) {
-        return assets('img/default-placeholder.png');  
+        return assets('img/default-placeholder.jpg');  
     }
     $image= get_the_post_thumbnail_url($id, $type);
     if (!$image && $default) {
-        $image=assets('img/default-placeholder.png');
+        $image=assets('img/default-placeholder.jpg');
     }
 
     if (is_exp_static()) {
@@ -412,9 +445,20 @@ function thumbnail($id, $type = 'full',$default=true)
 
 function thumbnail_url($url){
     if (!$url) {
-        return assets('img/default-placeholder.png');
+        return assets('img/default-placeholder.jpg');
     }
     return $url;
+}
+
+function term_image( $term_id, $size = 'thumbnail', $default = true ) {
+    $imagen_id = get_term_meta( (int) $term_id, 'term_imagen', true );
+    if ( $imagen_id ) {
+        $url = wp_get_attachment_image_url( (int) $imagen_id, $size );
+        if ( $url ) {
+            return $url;
+        }
+    }
+    return $default ? assets('img/default-placeholder.jpg') : '';
 }
 
 function ajax_script_load_more($args)
@@ -659,7 +703,7 @@ function component_url($url_parameters=[]){
 
 function image_auto_url($imagen){
     if (!$imagen) {
-        return assets('img/default-placeholder.png');
+        return assets('img/default-placeholder.jpg');
     }
     if (is_numeric($imagen)) {
        return  wp_get_attachment_url($imagen);
@@ -833,4 +877,60 @@ function get_current_cateory(){
         $category_ids[] = $category->term_id;
     }
     return $category_ids;
+}
+
+
+if (!function_exists('_render_cat_menu')) {
+    function _render_cat_menu(array $items): void {
+        foreach ($items as $item) {
+            $has_sub = !empty($item['submenu']);
+            $active  = $item['menu']->active ? ' active' : '';
+            echo '<li class="cat-item' . ($has_sub ? ' has-children' : '') . $active . '">';
+            echo '<a href="' . esc_url($item['menu']->url) . '">' . esc_html($item['menu']->title) . '</a>';
+            if ($has_sub) {
+                echo '<ul class="sub-menu">';
+                _render_cat_menu($item['submenu']);
+                echo '</ul>';
+            }
+            echo '</li>';
+        }
+    }
+}
+
+if (!function_exists('_render_desktop_menu')) {
+    function _render_desktop_menu(array $items, int $depth = 0): void {
+        foreach ($items as $item) {
+            $has_sub = !empty($item['submenu']);
+            $active  = $item['menu']->active ? ' active' : '';
+            $cls     = 'menu-item' . ($has_sub ? ' has-children' : '') . $active;
+            echo '<li class="' . esc_attr($cls) . '">';
+            $arrow = ($has_sub && $depth === 0) ? ' <i class="fas fa-chevron-down dropdown-arrow"></i>' : '';
+            echo '<a href="' . esc_url($item['menu']->url) . '">' . esc_html($item['menu']->title) . $arrow . '</a>';
+            if ($has_sub) {
+                echo '<ul class="sub-menu">';
+                _render_desktop_menu($item['submenu'], $depth + 1);
+                echo '</ul>';
+            }
+            echo '</li>';
+        }
+    }
+}
+
+if (!function_exists('_render_mobile_menu')) {
+    function _render_mobile_menu(array $items): void {
+        foreach ($items as $item) {
+            $has_sub  = !empty($item['submenu']);
+            $active   = $item['menu']->active ? ' active' : '';
+            $cls      = ($has_sub ? 'menu-item-has-children' : '') . $active;
+            $cls_attr = $cls ? ' class="' . esc_attr(trim($cls)) . '"' : '';
+            echo '<li' . $cls_attr . '>';
+            echo '<a href="' . esc_url($item['menu']->url) . '">' . esc_html($item['menu']->title) . '</a>';
+            if ($has_sub) {
+                echo '<ul class="sub-menu">';
+                _render_mobile_menu($item['submenu']);
+                echo '</ul>';
+            }
+            echo '</li>';
+        }
+    }
 }

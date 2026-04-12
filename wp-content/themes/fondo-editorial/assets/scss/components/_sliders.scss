@@ -91,10 +91,11 @@
         .product-card--body {
             position: relative;
             padding: 1px;
+            
             &::before {
                 position: absolute;
                 content: "";
-                background: #e5e5e5;
+                // background: #e5e5e5;
                 left: 0px;
                 top: 0;
                 height: 100%;
@@ -424,6 +425,7 @@
         margin-bottom: 20px;
         left: 50%;
         transform: translateX(-50%);
+        bottom: -50px;
         li {
             width: 20px;
             height: 20px;

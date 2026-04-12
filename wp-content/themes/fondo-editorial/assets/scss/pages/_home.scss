@@ -499,6 +499,86 @@
             }
         }
     }
+    &.promo-type-five {
+        height: auto;
+        .promo-image {
+            position: relative;
+            height: 100%;
+        }
+        .promo-text {
+            text-align: left;
+            margin-left: 25px;
+            .price {
+                color: #cd1a1b;
+                font-size: 24px;
+                font-weight: 600;
+                margin-bottom: 12px;
+            }
+            h2 {
+                color: #fffefe;
+                font-size: 24px;
+                font-weight: 600;
+                line-height: 28px;
+                text-transform: capitalize;
+                margin: 0;
+            }
+            h3 {
+                font-size: 18px;
+                color: #555555;
+                font-style: italic;
+                margin: 0;
+            }
+            .btn {
+                font-size: 15px;
+                text-transform: capitalize;
+                font-weight: 700;
+                min-height: 40px;
+                padding: 0 23px;
+                margin-top: 24px;
+                pointer-events: visible;
+            }
+        }
+    }
+    &.promo-type-yt {
+        height: 100%;
+        .promo-image {
+            position: relative;
+            height: 100%;
+        }
+        .promo-text {
+            text-align: left;
+            margin-left: 25px;
+            .price {
+                color: #cd1a1b;
+                font-size: 24px;
+                font-weight: 600;
+                margin-bottom: 12px;
+            }
+            h2 {
+                color: #fffefe;
+                font-size: 24px;
+                font-weight: 600;
+                line-height: 28px;
+                text-transform: capitalize;
+                margin: 0;
+            }
+            h3 {
+                font-size: 18px;
+                color: #555555;
+                font-style: italic;
+                margin: 0;
+            }
+            .btn {
+                font-size: 15px;
+                text-transform: capitalize;
+                font-weight: 700;
+                min-height: 40px;
+                padding: 0 23px;
+                margin-top: 24px;
+                pointer-events: visible;
+            }
+        }
+    }
 }
 
 /* Home -4 Left Sidebar Product List Slider */

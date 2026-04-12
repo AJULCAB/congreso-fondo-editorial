@@ -263,22 +263,6 @@ jQuery(document).ready(function($) {
 
         }
         stickyHeader()
-        /*-------------------------------------
-        	--> Range Slider
-        ---------------------------------------*/
-        $(function() {
-            $(".sb-range-slider").slider({
-                range: true,
-                min: 0,
-                max: 753,
-                values: [80, 320],
-                slide: function(event, ui) {
-                    $("#amount").val("£" + ui.values[0] + " - £" + ui.values[1]);
-                }
-            });
-            $("#amount").val("£" + $(".sb-range-slider").slider("values", 0) +
-                " - £" + $(".sb-range-slider").slider("values", 1));
-        });
 
         /*-------------------------------------
         	--> Product View Mode
@@ -404,11 +388,11 @@ jQuery(document).ready(function($) {
         /*---------------------------------------------------------------------------------------
         --> Scroll Top (When the user clicks on the button, scroll to the top of the document)
         -----------------------------------------------------------------------------------------*/
-        $.scrollUp({
-            scrollText: '<i class="ion-chevron-right"></i><i class="ion-chevron-right"></i>',
-            easingType: 'linear',
-            scrollSpeed: 900,
-        });
+        // $.scrollUp({
+        //     scrollText: '<i class="ion-chevron-right"></i><i class="ion-chevron-right"></i>',
+        //     easingType: 'linear',
+        //     scrollSpeed: 900,
+        // });
     })(jQuery);
 
     /*--
