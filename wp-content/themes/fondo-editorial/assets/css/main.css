@@ -22145,7 +22145,6 @@ input[type=number] {
 .header-top-list > li {
   padding: 8px 0;
   margin-right: 30px;
-  text-transform: capitalize;
   z-index: 500;
 }
 .header-top-list > li a {
@@ -22219,7 +22218,6 @@ input[type=number] {
   padding: 9px 0;
   line-height: 28px;
   display: block;
-  text-transform: capitalize;
   font-weight: 400;
   height: inherit;
   border-radius: 0;
@@ -22401,7 +22399,6 @@ input[type=number] {
   height: 53px;
   font-size: 15px;
   color: #333333;
-  text-transform: capitalize;
   font-weight: 700;
   line-height: 52px;
   margin-right: 10px;
@@ -22434,7 +22431,6 @@ input[type=number] {
 }
 .cart-product .content .title {
   line-height: 20px;
-  text-transform: capitalize;
   display: block;
   margin-bottom: 11px;
   font-size: 14px;
@@ -22829,7 +22825,6 @@ input[type=number] {
   padding: 10px 25px 10px 15px;
   color: #555555;
   line-height: 26px;
-  text-transform: capitalize;
   font-weight: 400;
   display: block;
 }
