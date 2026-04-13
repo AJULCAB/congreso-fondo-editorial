@@ -78,8 +78,7 @@ $_footer_social   = ! empty($_footer_data['social_links']) ? $_footer_data['soci
                     <nav class="category-nav white-nav  ">
                         <div>
                             <a href="javascript:void(0)" class="category-trigger"><i
-                                    class="fa fa-bars"></i>Explorar
-                                categorías</a>
+                                    class="fa fa-bars"></i>Explorar catálogos</a>
                             <ul class="category-menu">
                                 <?php _render_cat_menu($_menu_categories); ?>
                             </ul>
@@ -121,8 +120,7 @@ $_footer_social   = ! empty($_footer_data['social_links']) ? $_footer_data['soci
                     <nav class="category-nav   ">
                         <div>
                             <a href="javascript:void(0)" class="category-trigger"><i
-                                    class="fa fa-bars"></i>Explorar
-                                categorías</a>
+                                    class="fa fa-bars"></i>Explorar catálogos</a>
                             <ul class="category-menu">
                                 <?php _render_cat_menu($_menu_categories); ?>
                             </ul>
