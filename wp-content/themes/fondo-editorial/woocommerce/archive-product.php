@@ -262,7 +262,7 @@ defined( 'ABSPATH' ) || exit;
 				<div class="inner-page-sidebar">
 					<!-- Accordion -->
 					<div class="single-block">
-						<h3 class="sidebar-title">Categorías</h3>
+						<h3 class="sidebar-title">Catálogos</h3>
 						<ul class="sidebar-menu--shop">
 							<?php
 							$current_term_id = 0;

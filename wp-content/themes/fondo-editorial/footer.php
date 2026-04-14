@@ -6,7 +6,7 @@ Footer
 <?php get_template_part('template-parts/footer/footer','main') ?>
 
 <div class="floating_btn">
-    <a target="_blank" href="https://wa.me/">
+    <a target="_blank" href="https://wa.link/avha6d">
       <div class="contact_icon">
         <i class="fab fa-whatsapp my-float"></i>
       </div>
